@@ -8,7 +8,7 @@ WORKDIR /app
 
 # Copy the requirements.txt file into working directory and install the packages
 COPY requirements.txt .
-RUN pip3 install -U -r requirements.txt
+RUN pip3 install -U -r requirements.txt --break-system-packages
 
 # Copy all the files into working directory
 COPY . .
