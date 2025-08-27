@@ -21,7 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from asyncio import run_coroutine_threadsafe
+from asyncio import AbstractEventLoop
 from os import mkdir, remove
 from random import randint
 from shutil import rmtree
@@ -33,8 +33,9 @@ from mbot.utils.ytdl import audio_opt, getIds, thumb_down, ytdl_down
 
 
 def progress_hook_factory(client, message, index, total, title):
-
     bar_length = 20
+    loop: AbstractEventLoop = client.loop
+
 
     def hook(d):
         status = d.get("status")
@@ -51,11 +52,12 @@ def progress_hook_factory(client, message, index, total, title):
                 f"{title}\n"
                 f"`[{bar}] {percent}`"
             )
-            run_coroutine_threadsafe(message.edit_text(text), client.loop)
+
+            loop.call_soon_threadsafe(loop.create_task, message.edit_text(text))
         elif status == "finished":
-            run_coroutine_threadsafe(
+            loop.call_soon_threadsafe(
+                loop.create_task,
                 message.edit_text("Download complete, processing..."),
-                client.loop,
             )
 
     return hook
@@ -93,7 +95,6 @@ async def _(client, message):
             opts = audio_opt(randomdir, id[2])
             opts["progress_hooks"] = [
                 progress_hook_factory(client, m, idx, videoInPlaylist, id[3])
-
             ]
             fileLink = await ytdl_down(opts, id[0])
             await m.edit_text("Uploading...")
