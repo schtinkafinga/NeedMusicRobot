@@ -1,20 +1,20 @@
-# Pulling python docker image directly
-FROM python:alpine3.17
+FROM python:3.11-alpine3.17
 
-# Changing the working directory
 WORKDIR /app
 
-# Adding possible missing dependencies for ARM servers
-RUN apk update && apk add python3-dev \
-                        gcc \
-                        libc-dev \
-                        git
-# Copy the requirements.txt file into working directory and install the packages
-COPY requirements.txt .
-RUN pip3 install -U -r requirements.txt
+# Install system dependencies
+RUN apk add --no-cache \
+    python3-dev \
+    gcc \
+    libc-dev \
+    git
 
-# Copy all the files into working directory
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip3 install --no-cache-dir -U -r requirements.txt
+
+# Copy project files
 COPY . .
 
-# Start the bot
+# Run the bot
 CMD ["python3", "-m", "mbot"]
