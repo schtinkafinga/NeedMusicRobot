@@ -29,6 +29,7 @@ from shutil import rmtree
 from pyrogram import filters
 
 from mbot import AUTH_CHATS, LOG_GROUP, LOGGER, Mbot
+from mbot.utils.progress import upload_progress_hook_factory
 from mbot.utils.ytdl import audio_opt, getIds, thumb_down, ytdl_down
 
 
@@ -106,6 +107,9 @@ async def _(client, message):
                 performer=id[2],
                 thumb=thumnail,
                 duration=id[4],
+                progress=upload_progress_hook_factory(
+                    client, m, idx, videoInPlaylist, id[3]
+                ),
             )
             if LOG_GROUP:
                 await PForCopy.copy(LOG_GROUP)
