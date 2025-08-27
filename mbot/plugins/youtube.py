@@ -33,6 +33,7 @@ from mbot.utils.ytdl import audio_opt, getIds, thumb_down, ytdl_down
 
 
 def progress_hook_factory(client, message, index, total, title):
+
     bar_length = 20
 
     def hook(d):
@@ -92,6 +93,7 @@ async def _(client, message):
             opts = audio_opt(randomdir, id[2])
             opts["progress_hooks"] = [
                 progress_hook_factory(client, m, idx, videoInPlaylist, id[3])
+
             ]
             fileLink = await ytdl_down(opts, id[0])
             await m.edit_text("Uploading...")
