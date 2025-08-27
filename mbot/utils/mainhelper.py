@@ -40,7 +40,10 @@ def parse_deezer_url(url):
 @sync_to_async
 def parse_spotify_url(url):
     if url.startswith("spotify"):
-        return url.split(":")[1]
+        parts = url.split(":")
+        if len(parts) >= 3:
+            return parts[1], parts[2]
+        raise ValueError("Invalid Spotify URL format")
     url = get(url).url
     parsed_url = url.replace("https://open.spotify.com/", "").split("/")
     return parsed_url[0], parsed_url[1].split("?")[0]
