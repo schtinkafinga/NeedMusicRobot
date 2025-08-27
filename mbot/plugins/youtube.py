@@ -32,7 +32,8 @@ from mbot import AUTH_CHATS, LOG_GROUP, LOGGER, Mbot
 from mbot.utils.ytdl import audio_opt, getIds, thumb_down, ytdl_down
 
 
-def progress_hook_factory(message, index, total, title):
+def progress_hook_factory(client, message, index, total, title):
+
     bar_length = 20
 
     def hook(d):
@@ -50,11 +51,11 @@ def progress_hook_factory(message, index, total, title):
                 f"{title}\n"
                 f"`[{bar}] {percent}`"
             )
-            run_coroutine_threadsafe(message.edit_text(text), Mbot.loop)
+            run_coroutine_threadsafe(message.edit_text(text), client.loop)
         elif status == "finished":
             run_coroutine_threadsafe(
                 message.edit_text("Download complete, processing..."),
-                Mbot.loop,
+                client.loop,
             )
 
     return hook
@@ -66,7 +67,7 @@ def progress_hook_factory(message, index, total, title):
     & filters.regex(r"https?://.*you[^\s]+")
     & filters.chat(AUTH_CHATS)
 )
-async def _(_, message):
+async def _(client, message):
     m = await message.reply_text("Gathering information... Please Wait.")
     link = message.matches[0].group(0)
     if link in [
@@ -91,7 +92,8 @@ async def _(_, message):
             )
             opts = audio_opt(randomdir, id[2])
             opts["progress_hooks"] = [
-                progress_hook_factory(m, idx, videoInPlaylist, id[3])
+                progress_hook_factory(client, m, idx, videoInPlaylist, id[3])
+
             ]
             fileLink = await ytdl_down(opts, id[0])
             await m.edit_text("Uploading...")
