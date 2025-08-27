@@ -21,8 +21,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from os import mkdir
+from os import mkdir, remove
 from random import randint
+from shutil import rmtree
 
 import spotipy
 from pyrogram import filters
@@ -80,6 +81,9 @@ async def spotify_dl(_, message):
                 )
                 if LOG_GROUP:
                     await copy(PForCopy, AForCopy)
+                remove(fileLink)
+                remove(thumbnail)
+            rmtree(randomdir, ignore_errors=True)
             return await m.delete()
         elif item_type == "track":
             song = await fetch_spotify_track(client, item_id)
@@ -98,6 +102,9 @@ async def spotify_dl(_, message):
             )
             if LOG_GROUP:
                 await copy(PForCopy, AForCopy)
+            remove(path)
+            remove(thumbnail)
+            rmtree(randomdir, ignore_errors=True)
             return await m.delete()
         elif item_type == "playlist":
             tracks = client.playlist_items(
@@ -127,6 +134,9 @@ async def spotify_dl(_, message):
                 track_no += 1
                 if LOG_GROUP:
                     await copy(PForCopy, AForCopy)
+                remove(path)
+                remove(thumbnail)
+            rmtree(randomdir, ignore_errors=True)
             return await m.delete()
         elif item_type == "album":
             tracks = client.album_tracks(album_id=item_id)
@@ -149,6 +159,9 @@ async def spotify_dl(_, message):
                 )
                 if LOG_GROUP:
                     await copy(PForCopy, AForCopy)
+                remove(path)
+                remove(thumbnail)
+            rmtree(randomdir, ignore_errors=True)
             return await m.delete()
     except Exception as e:
         LOGGER.error(e)
