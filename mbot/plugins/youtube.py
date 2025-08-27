@@ -36,6 +36,7 @@ def progress_hook_factory(client, message, index, total, title):
     bar_length = 20
     loop: AbstractEventLoop = client.loop
 
+
     def hook(d):
         status = d.get("status")
         if status == "downloading":
@@ -51,6 +52,7 @@ def progress_hook_factory(client, message, index, total, title):
                 f"{title}\n"
                 f"`[{bar}] {percent}`"
             )
+
             loop.call_soon_threadsafe(loop.create_task, message.edit_text(text))
         elif status == "finished":
             loop.call_soon_threadsafe(
