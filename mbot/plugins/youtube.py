@@ -21,8 +21,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from os import mkdir
+from os import mkdir, remove
 from random import randint
+from shutil import rmtree
 
 from pyrogram import filters
 
@@ -71,6 +72,9 @@ async def _(_, message):
             if LOG_GROUP:
                 await PForCopy.copy(LOG_GROUP)
                 await AForCopy.copy(LOG_GROUP)
+            remove(fileLink)
+            remove(thumnail)
+        rmtree(randomdir, ignore_errors=True)
         await m.delete()
     except Exception as e:
         LOGGER.error(e)

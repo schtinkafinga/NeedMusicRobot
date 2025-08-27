@@ -21,8 +21,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from os import mkdir
+from os import mkdir, remove
 from random import randint
+from shutil import rmtree
 
 from deezer import Client
 from pyrogram import filters
@@ -75,6 +76,9 @@ async def link_handler(_, message):
                 if LOG_GROUP:
                     await PForCopy.copy(LOG_GROUP)
                     await AForCopy.copy(LOG_GROUP)
+                remove(path)
+                remove(thumbnail)
+            rmtree(randomdir, ignore_errors=True)
             await m.delete()
         elif item_type == "artist":
             await m.edit_text(
