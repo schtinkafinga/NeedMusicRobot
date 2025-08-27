@@ -21,6 +21,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+from asyncio import run_coroutine_threadsafe
 from os import mkdir, remove
 from random import randint
 from shutil import rmtree
@@ -29,6 +30,34 @@ from pyrogram import filters
 
 from mbot import AUTH_CHATS, LOG_GROUP, LOGGER, Mbot
 from mbot.utils.ytdl import audio_opt, getIds, thumb_down, ytdl_down
+
+
+def progress_hook_factory(message, index, total, title):
+    bar_length = 20
+
+    def hook(d):
+        status = d.get("status")
+        if status == "downloading":
+            percent = d.get("_percent_str", "0%").strip()
+            try:
+                p = float(percent.strip("%"))
+            except ValueError:
+                p = 0
+            filled = int(bar_length * p // 100)
+            bar = "█" * filled + "░" * (bar_length - filled)
+            text = (
+                f"Downloading {index}/{total}\n"
+                f"{title}\n"
+                f"`[{bar}] {percent}`"
+            )
+            run_coroutine_threadsafe(message.edit_text(text), Mbot.loop)
+        elif status == "finished":
+            run_coroutine_threadsafe(
+                message.edit_text("Download complete, processing..."),
+                Mbot.loop,
+            )
+
+    return hook
 
 
 @Mbot.on_message(
@@ -54,12 +83,18 @@ async def _(_, message):
         videoInPlaylist = len(ids)
         randomdir = "/tmp/" + str(randint(1, 100000000))
         mkdir(randomdir)
-        for id in ids:
+        for idx, id in enumerate(ids, start=1):
+            await m.edit_text(f"Starting download {idx}/{videoInPlaylist}...")
             PForCopy = await message.reply_photo(
                 f"https://i.ytimg.com/vi/{id[0]}/hqdefault.jpg",
                 caption=f"🎧 Title : `{id[3]}`\n🎤 Artist : `{id[2]}`\n💽 Track No : `{id[1]}`\n💽 Total Track : `{videoInPlaylist}`",
             )
-            fileLink = await ytdl_down(audio_opt(randomdir, id[2]), id[0])
+            opts = audio_opt(randomdir, id[2])
+            opts["progress_hooks"] = [
+                progress_hook_factory(m, idx, videoInPlaylist, id[3])
+            ]
+            fileLink = await ytdl_down(opts, id[0])
+            await m.edit_text("Uploading...")
             thumnail = await thumb_down(id[0])
             AForCopy = await message.reply_audio(
                 fileLink,
