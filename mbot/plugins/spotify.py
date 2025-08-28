@@ -28,6 +28,8 @@ from shutil import rmtree
 import spotipy
 from pyrogram import filters
 
+from mbot.utils.pyrohelper import safe_edit
+
 from mbot import AUTH_CHATS, LOG_GROUP, LOGGER, Mbot
 from mbot.utils.mainhelper import (
     copy,
@@ -165,4 +167,4 @@ async def spotify_dl(_, message):
             return await m.delete()
     except Exception as e:
         LOGGER.error(e)
-        await m.edit_text(e)
+        await safe_edit(m, e)

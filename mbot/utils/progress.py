@@ -1,5 +1,7 @@
 from asyncio import AbstractEventLoop
 
+from .pyrohelper import safe_edit
+
 
 def upload_progress_hook_factory(client, message, index, total, title):
     bar_length = 20
@@ -17,11 +19,11 @@ def upload_progress_hook_factory(client, message, index, total, title):
         )
         if current < total_size:
             loop.call_soon_threadsafe(
-                loop.create_task, message.edit_text(text)
+                loop.create_task, safe_edit(message, text)
             )
         else:
             loop.call_soon_threadsafe(
-                loop.create_task, message.edit_text("Upload complete.")
+                loop.create_task, safe_edit(message, "Upload complete.")
             )
 
     return progress

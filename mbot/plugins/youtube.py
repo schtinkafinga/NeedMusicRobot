@@ -30,6 +30,7 @@ from pyrogram import filters
 
 from mbot import AUTH_CHATS, LOG_GROUP, LOGGER, Mbot
 from mbot.utils.progress import upload_progress_hook_factory
+from mbot.utils.pyrohelper import safe_edit
 from mbot.utils.ytdl import audio_opt, getIds, thumb_down, ytdl_down
 
 
@@ -54,11 +55,11 @@ def progress_hook_factory(client, message, index, total, title):
                 f"`[{bar}] {percent}`"
             )
 
-            loop.call_soon_threadsafe(loop.create_task, message.edit_text(text))
+            loop.call_soon_threadsafe(loop.create_task, safe_edit(message, text))
         elif status == "finished":
             loop.call_soon_threadsafe(
                 loop.create_task,
-                message.edit_text("Download complete, processing..."),
+                safe_edit(message, "Download complete, processing..."),
             )
 
     return hook
@@ -79,16 +80,16 @@ async def _(client, message):
         "https://youtu.be/",
         "https://youtu.be",
     ]:
-        return await m.edit_text("Please send a valid playlist or video link.")
+        return await safe_edit(m, "Please send a valid playlist or video link.")
     elif "channel" in link or "/c/" in link:
-        return await m.edit_text("**Channel** Download Not Available. ")
+        return await safe_edit(m, "**Channel** Download Not Available. ")
     try:
         ids = await getIds(message.matches[0].group(0))
         videoInPlaylist = len(ids)
         randomdir = "/tmp/" + str(randint(1, 100000000))
         mkdir(randomdir)
         for idx, id in enumerate(ids, start=1):
-            await m.edit_text(f"Starting download {idx}/{videoInPlaylist}...")
+            await safe_edit(m, f"Starting download {idx}/{videoInPlaylist}...")
             PForCopy = await message.reply_photo(
                 f"https://i.ytimg.com/vi/{id[0]}/hqdefault.jpg",
                 caption=f"🎧 Title : `{id[3]}`\n🎤 Artist : `{id[2]}`\n💽 Track No : `{id[1]}`\n💽 Total Track : `{videoInPlaylist}`",
@@ -98,7 +99,7 @@ async def _(client, message):
                 progress_hook_factory(client, m, idx, videoInPlaylist, id[3])
             ]
             fileLink = await ytdl_down(opts, id[0])
-            await m.edit_text("Uploading...")
+            await safe_edit(m, "Uploading...")
             thumnail = await thumb_down(id[0])
             AForCopy = await message.reply_audio(
                 fileLink,
@@ -120,4 +121,4 @@ async def _(client, message):
         await m.delete()
     except Exception as e:
         LOGGER.error(e)
-        await m.edit_text(e)
+        await safe_edit(m, e)
