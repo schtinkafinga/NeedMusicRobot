@@ -28,6 +28,8 @@ from shutil import rmtree
 from deezer import Client
 from pyrogram import filters
 
+from mbot.utils.pyrohelper import safe_edit
+
 from mbot import AUTH_CHATS, LOG_GROUP, Mbot
 from mbot.utils.mainhelper import (
     download_songs,
@@ -81,10 +83,11 @@ async def link_handler(_, message):
             rmtree(randomdir, ignore_errors=True)
             await m.delete()
         elif item_type == "artist":
-            await m.edit_text(
-                "This Is An Artist Account Link. Send me Track, Playlist or Album Link :)"
+            await safe_edit(
+                m,
+                "This Is An Artist Account Link. Send me Track, Playlist or Album Link :)",
             )
         else:
-            await m.edit_text("Link Type Not Available for Download.")
+            await safe_edit(m, "Link Type Not Available for Download.")
     except Exception as e:
-        await m.edit_text(f"Error: {e}", quote=True)
+        await safe_edit(m, f"Error: {e}", quote=True)

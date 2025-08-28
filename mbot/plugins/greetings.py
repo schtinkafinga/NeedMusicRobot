@@ -28,6 +28,8 @@ from pyrogram import filters
 from pyrogram.raw.functions import Ping
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
+from mbot.utils.pyrohelper import safe_edit
+
 from mbot import AUTH_CHATS, LOG_GROUP, OWNER_ID, SUDO_USERS, Mbot
 
 
@@ -126,7 +128,7 @@ async def helpbtn(_, query):
         [[InlineKeyboardButton("Back", callback_data="helphome")]]
     )
     text = f"Help for **{i}**\n\n{HELP[i]}"
-    await query.message.edit(text=text, reply_markup=button)
+    await safe_edit(query.message, text, reply_markup=button)
 
 
 @Mbot.on_callback_query(filters.regex(r"helphome"))
@@ -134,7 +136,8 @@ async def help_home(_, query):
     button = [
         [InlineKeyboardButton(text=i, callback_data=f"help_{i}")] for i in HELP
     ]
-    await query.message.edit(
+    await safe_edit(
+        query.message,
         f"Hello **{query.from_user.first_name}**, I'm **@NeedMusicRobot**.\nI'm Here to download your music.",
         reply_markup=InlineKeyboardMarkup(button),
     )
