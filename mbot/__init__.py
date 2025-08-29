@@ -21,10 +21,19 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+import asyncio
 import logging
 from os import environ, mkdir, path, sys
 
 from dotenv import load_dotenv
+
+# Python 3.10+ no longer creates a default event loop automatically.
+# Ensure one exists before importing pyrogram, which expects it.
+try:  # pragma: no cover - simple compatibility shim
+    asyncio.get_running_loop()
+except RuntimeError:
+    asyncio.set_event_loop(asyncio.new_event_loop())
+
 from pyrogram import Client
 
 load_dotenv("config.env")
