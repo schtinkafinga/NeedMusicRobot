@@ -26,6 +26,7 @@ from requests import get
 from yt_dlp import YoutubeDL
 
 from mbot import LOG_GROUP, LOGGER
+from mbot.utils.ytdl import youtube_extractor_args
 
 
 @sync_to_async
@@ -191,13 +192,14 @@ def download_songs(song, download_directory="."):
         ":", ""
     ).replace('"', "")
     ydl_opts = {
-        "format": "bestaudio",
+        "format": "bestaudio/best",
         "default_search": "ytsearch",
         "noplaylist": True,
         "nocheckcertificate": True,
         "outtmpl": f"{download_directory}/%(title)s.mp3",
         "quiet": True,
         "addmetadata": True,
+        "extractor_args": youtube_extractor_args(),
     }
 
     with YoutubeDL(ydl_opts) as ydl:

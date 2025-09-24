@@ -1,13 +1,14 @@
-FROM python:3.11-alpine3.17
+FROM python:3.14.0rc2-alpine3.22
 
 WORKDIR /app
 
 # Install system dependencies
-RUN apk add --no-cache \
+RUN apk update && apk add \
     python3-dev \
     gcc \
     libc-dev \
-    git
+    git \
+    ffmpeg
 
 # Install Python dependencies
 COPY requirements.txt .

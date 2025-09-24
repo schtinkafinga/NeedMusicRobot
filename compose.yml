@@ -1,0 +1,8 @@
+services:
+  musicbot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    volumes:
+      - .:/app

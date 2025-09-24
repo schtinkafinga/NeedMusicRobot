@@ -25,10 +25,23 @@ from requests import get
 from yt_dlp import YoutubeDL
 
 
+def youtube_extractor_args():
+    """Return extractor overrides that bypass SABR-only responses."""
+    return {
+        "youtube": {
+            "player_client": [
+                "ios",
+                "android_music",
+                "android",
+            ]
+        }
+    }
+
+
 @sync_to_async
 def getIds(video):
     ids = []
-    with YoutubeDL({"quiet": True}) as ydl:
+    with YoutubeDL({"quiet": True, "extractor_args": youtube_extractor_args()}) as ydl:
         info_dict = ydl.extract_info(video, download=False)
         try:
             info_dict = info_dict["entries"]
@@ -59,13 +72,14 @@ def getIds(video):
 
 def audio_opt(path, uploader="@YouNeedMusicBot"):
     return {
-        "format": "bestaudio",
+        "format": "bestaudio/best",
         "addmetadata": True,
         "geo_bypass": True,
         "noplaylist": True,
         "nocheckcertificate": True,
         "outtmpl": f"{path}/%(title)s - {uploader}.mp3",
         "quiet": True,
+        "extractor_args": youtube_extractor_args(),
     }
 
 
