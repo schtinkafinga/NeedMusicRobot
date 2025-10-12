@@ -30,7 +30,7 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from mbot.utils.pyrohelper import safe_edit
 
-from mbot import AUTH_CHATS, LOG_GROUP, OWNER_ID, SUDO_USERS, Mbot
+from mbot import AUTH_CHATS, OWNER_ID, SUDO_USERS, Mbot
 
 
 @Mbot.on_message(filters.command("start"))
@@ -51,18 +51,6 @@ async def start(client, message):
             ),
         ],
     ]
-    if LOG_GROUP:
-
-        invite_link = await client.create_chat_invite_link(
-            chat_id=(
-                int(LOG_GROUP)
-                if str(LOG_GROUP).startswith("-100")
-                else LOG_GROUP
-            )
-        )
-        reply_markup.append(
-            [InlineKeyboardButton("LOG Channel", url=invite_link.invite_link)]
-        )
     if (
         message.chat.type != "private"
         and message.chat.id not in AUTH_CHATS
